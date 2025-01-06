@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054378321490",
+    "project_id": "hcms-application",
+    "storage_bucket": "hcms-application.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054378321490:android:945cb3820b47f87c2da18b",
+        "android_client_info": {
+          "package_name": "com.example.hcms_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALgqhRyShYgkIuioi06SQttDWBAVhIvI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
