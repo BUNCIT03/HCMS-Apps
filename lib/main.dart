@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:hcms_application/screens/homepage.dart';
+import 'screens/dashboard.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase with the web configuration
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyA9UnlFUCkvd_N2NGXTjvuMXl1Vr7ncWjo",
+      authDomain: "hcms-application.firebaseapp.com",
+      projectId: "hcms-application",
+      storageBucket: "hcms-application.appspot.com",
+      messagingSenderId: "1054378321490",
+      appId: "1:1054378321490:web:f6ea958486f633db2da18b",
+      measurementId: "G-SXJJ411NDE",
+    ),
+  );
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +49,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Dashboard(),
     );
   }
 }
