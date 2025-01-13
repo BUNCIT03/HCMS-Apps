@@ -1,4 +1,5 @@
-class User {
+// model/user_model.dart
+class UserModel {
   String username = '';
   String password = ''; // The password will be hashed before saving
 
@@ -16,8 +17,8 @@ class User {
   }
 
   // Create a UserModel from Firestore data
-  static User fromMap(Map<String, dynamic> map) {
-    return User()
+  static UserModel fromMap(Map<String, dynamic> map) {
+    return UserModel()
       ..username = map['username']
       ..password = map['password'];
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hcms_application/screens/dashboard.dart';
+import 'package:hcms_application/screens/ManageBooking/ActivityPage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
           } else if (index == 1) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => Dashboard()),
+              MaterialPageRoute(builder: (context) => ActivityPage()),
             );
           }
         },

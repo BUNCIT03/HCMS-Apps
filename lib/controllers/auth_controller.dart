@@ -1,7 +1,8 @@
+// controller/auth_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hcms_application/domains/user_model.dart';
 
-class Usercontroller {
+class AuthController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<bool> isUserRegistered() async {
