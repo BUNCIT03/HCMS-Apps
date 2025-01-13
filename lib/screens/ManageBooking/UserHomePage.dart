@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
 import 'BookingPage.dart';
 
 class UserHomePage extends StatefulWidget {
@@ -153,6 +154,11 @@ class _UserHomePageState extends State<UserHomePage> {
               MaterialPageRoute(builder: (context) => BookingPage()),
             );
           } else if (index == 0) {}
+          // else{
+          //   Navigator.pushReplacement(
+          //     context
+          //     , MaterialPageRoute(builder: (context) => UserProfilePage(fullName: fullName, phoneNumber: phoneNumber, email: email, address: address, role: role)));
+          // }
         },
       ),
     );

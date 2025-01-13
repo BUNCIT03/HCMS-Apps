@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hcms_application/controllers/UserController.dart';
+import 'package:hcms_application/domains/User.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -6,11 +8,13 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final Usercontroller _userController = Usercontroller();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -35,17 +39,28 @@ class _RegisterPageState extends State<RegisterPage> {
     'Kuala Lumpur'
   ];
 
-  bool _isUsernameTaken = false;
+  Future<void> _registerUser() async {
+    if (_formKey.currentState!.validate()) {
+      final newUser = User(
+        fullName: _fullNameController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        email: _emailController.text,
+        phoneNumber: _phoneNumberController.text,
+        address: _addressController.text,
+        state: _selectedState!,
+        role: _selectedRole!,
+      );
 
-  void _checkUsernameAvailability() {
-    if (_usernameController.text == 'Haeeq') {
-      setState(() {
-        _isUsernameTaken = true;
-      });
-    } else {
-      setState(() {
-        _isUsernameTaken = false;
-      });
+      final isRegistered = await _userController.registerUser(newUser);
+      if (isRegistered) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration successful!')),
+        );
+        Navigator.pop(context);
+      } else {
+        _showUsernameErrorDialog();
+      }
     }
   }
 
@@ -253,17 +268,23 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _selectedRole == 'House Owner' ? Colors.green : Colors.grey[200],
+                          color: _selectedRole == 'House Owner'
+                              ? Colors.green
+                              : Colors.grey[200],
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: _selectedRole == 'House Owner' ? Colors.green : Colors.grey,
+                            color: _selectedRole == 'House Owner'
+                                ? Colors.green
+                                : Colors.grey,
                           ),
                         ),
                         child: Center(
                           child: Text(
                             'House Owner',
                             style: TextStyle(
-                              color: _selectedRole == 'House Owner' ? Colors.white : Colors.black,
+                              color: _selectedRole == 'House Owner'
+                                  ? Colors.white
+                                  : Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -282,17 +303,23 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _selectedRole == 'Cleaner' ? Colors.purple : Colors.grey[200],
+                          color: _selectedRole == 'Cleaner'
+                              ? Colors.purple
+                              : Colors.grey[200],
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: _selectedRole == 'Cleaner' ? Colors.purple : Colors.grey,
+                            color: _selectedRole == 'Cleaner'
+                                ? Colors.purple
+                                : Colors.grey,
                           ),
                         ),
                         child: Center(
                           child: Text(
                             'Cleaner',
                             style: TextStyle(
-                              color: _selectedRole == 'Cleaner' ? Colors.white : Colors.black,
+                              color: _selectedRole == 'Cleaner'
+                                  ? Colors.white
+                                  : Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -308,13 +335,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   backgroundColor: Colors.green,
                   minimumSize: Size(double.infinity, 50),
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    if (_isUsernameTaken) {
-                      _showUsernameErrorDialog();
-                    } else {
-                      // Handle registration logic here
-                    }
+                onPressed: _registerUser,
+                child: Text(
+                  'Register',
+                  style: TextStyle(fontSize: 18)),);
                   }
                 },
                 child: Text(

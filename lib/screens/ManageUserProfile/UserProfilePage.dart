@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/screens/ManageBooking/BookingPage.dart';
+import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
 import 'EditPage.dart';
 
 class UserProfilePage extends StatelessWidget {
+  final Bookingcontroller _bookingController = Bookingcontroller();
   final String fullName;
   final String phoneNumber;
   final String email;
@@ -33,7 +37,8 @@ class UserProfilePage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: role == 'House Owner' ? Colors.green : Colors.purple,
+                    backgroundColor:
+                        role == 'House Owner' ? Colors.green : Colors.purple,
                     child: Icon(
                       Icons.person,
                       size: 40,
@@ -64,7 +69,8 @@ class UserProfilePage extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: role == 'House Owner' ? Colors.green : Colors.purple,
+                      backgroundColor:
+                          role == 'House Owner' ? Colors.green : Colors.purple,
                     ),
                     child: Text('Edit', style: TextStyle(color: Colors.white)),
                   ),
@@ -117,7 +123,17 @@ class UserProfilePage extends StatelessWidget {
           ),
         ],
         onTap: (index) {
-          // Handle navigation
+          if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => BookingPage()),
+            );
+          } else if (index == 0) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserHomePage(_bookingController)));
+          } else {}
         },
       ),
     );

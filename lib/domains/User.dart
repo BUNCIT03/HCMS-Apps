@@ -31,6 +31,10 @@ class User {
   static User fromMap(Map<String, dynamic> map) {
     return User()
       ..username = map['username']
-      ..password = map['password'];
+      ..password = map['password']
+      ..full_name = map['full_name']
+      ..phone_num = map['phone_num']
+      ..address = map['address']
+      ..role = map['role'];
   }
 }
