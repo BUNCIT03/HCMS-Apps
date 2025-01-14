@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
-import 'controllers/auth_controller.dart';
-import 'screens/home_view.dart';
+import 'package:hcms_application/screens/ManageUser/RegisterPage.dart';
 import 'screens/login_view.dart';
-import 'screens/registration_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,50 +21,75 @@ void main() async {
       measurementId: "G-SXJJ411NDE",
     ),
   );
-  final controller = AuthController();
-  final bookcontroller = Bookingcontroller();
 
-  runApp(MyApp(controller, bookcontroller));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final AuthController controller;
-  final Bookingcontroller bookcontroller;
-  const MyApp(this.controller, this.bookcontroller, {super.key});
+  final UserController userController = UserController();
+  final Bookingcontroller bookingController = Bookingcontroller();
 
-  // This widget is the root of your application.
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp(
-  //     title: 'Cleaner Homepage',
-  //     theme: ThemeData(
-  //       colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-  //       useMaterial3: true,
-  //     ),
-  //     home: HomePage(),
-  //   );
-  // }
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Firestore MVC App',
-      initialRoute: '/',
+      title: 'HCMS Apps',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      // home: SplashScreen(userController: userController),
+      initialRoute: '/login',
       routes: {
-        '/': (context) => FutureBuilder<bool>(
-              future: controller.isUserRegistered(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                return snapshot.data == true
-                    ? LoginView(controller)
-                    : RegistrationView(controller);
-              },
+        '/login': (context) => LoginView(userController),
+        '/register': (context) => RegisterPage(userController),
+      },
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  final UserController userController;
+
+  const SplashScreen({required this.userController, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: userController.isUserRegistered("test_username"), // Example logic
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
-        '/login': (context) => LoginView(controller),
-        '/home': (context) => UserHomePage(bookcontroller),
-        '/register': (context) => RegistrationView(controller),
+          );
+        }
+
+        if (snapshot.hasData && snapshot.data == true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginView(userController),
+              ),
+            );
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RegisterPage(userController),
+              ),
+            );
+          });
+        }
+        return Scaffold(
+          body: Center(
+            child: Text('Redirecting...'),
+          ),
+        );
       },
     );
   }

@@ -96,10 +96,10 @@ class _ActivityPageState extends State<ActivityPage> {
         ],
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => HomePage()),
+            // );
           } else if (index == 1) {
             Navigator.pushReplacement(
               context,

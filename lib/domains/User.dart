@@ -1,12 +1,25 @@
 class User {
-  int user_id = 0;
+  int userId = 0;
   String username = '';
-  String password = ''; // The password will be hashed before saving
+  String password = ''; // Should be hashed before saving
   String email = '';
-  String full_name = '';
-  String phone_num = '';
+  String fullName = '';
+  String phoneNum = '';
   String address = '';
+  String state = '';
   String role = '';
+
+  User({
+    required this.userId,
+    required this.username,
+    required this.password,
+    required this.email,
+    required this.fullName,
+    required this.phoneNum,
+    required this.address,
+    required this.state,
+    required this.role,
+  });
 
   bool isValidUsername() => username.isNotEmpty;
   bool isValidPassword() => password.length >= 6;
@@ -16,25 +29,30 @@ class User {
   // Convert user data to Firestore format
   Map<String, dynamic> toMap() {
     return {
-      'user_id': user_id,
+      'userId': userId,
       'username': username,
       'password': password,
       'email': email,
-      'full_name': full_name,
-      'phone_num': phone_num,
+      'fullName': fullName,
+      'phoneNum': phoneNum,
       'address': address,
+      'state': state,
       'role': role,
     };
   }
 
   // Create a UserModel from Firestore data
   static User fromMap(Map<String, dynamic> map) {
-    return User()
-      ..username = map['username']
-      ..password = map['password']
-      ..full_name = map['full_name']
-      ..phone_num = map['phone_num']
-      ..address = map['address']
-      ..role = map['role'];
+    return User(
+      userId: map['userId'] ?? 0,
+      username: map['username'] ?? '',
+      password: map['password'] ?? '',
+      email: map['email'] ?? '',
+      fullName: map['fullName'] ?? '',
+      phoneNum: map['phoneNum'] ?? '',
+      address: map['address'] ?? '',
+      state: map['state'] ?? '',
+      role: map['role'] ?? '',
+    );
   }
 }

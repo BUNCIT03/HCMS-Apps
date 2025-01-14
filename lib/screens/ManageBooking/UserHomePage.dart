@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
 import 'BookingPage.dart';
 
 class UserHomePage extends StatefulWidget {
   final Bookingcontroller bookingController;
+  final UserController userController;
+  final String username;
 
-  UserHomePage(this.bookingController);
+  UserHomePage(this.bookingController, this.userController, this.username);
 
   @override
   _UserHomePageState createState() => _UserHomePageState();
@@ -32,11 +35,10 @@ class _UserHomePageState extends State<UserHomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Hi, Hazzeq',
+              'Hi, ${widget.username}',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          // Notifications Section
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16),
             padding: EdgeInsets.all(16),
@@ -49,7 +51,7 @@ class _UserHomePageState extends State<UserHomePage> {
               children: [
                 Expanded(
                   child: Text(
-                    'YOUR BOOKINGS FOR TAMAN BERUAS HAVE BEEN DECLINE BY CLEANER',
+                    'YOUR BOOKINGS FOR TAMAN BERUAS HAVE BEEN DECLINED BY CLEANER',
                     style: TextStyle(fontSize: 14, color: Colors.black),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -69,7 +71,6 @@ class _UserHomePageState extends State<UserHomePage> {
             ),
           ),
           SizedBox(height: 16),
-          // Tab Bar for Ongoing and Completed
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -122,10 +123,8 @@ class _UserHomePageState extends State<UserHomePage> {
             ),
           ),
           SizedBox(height: 16),
-          // Dynamic Booking List
           Expanded(
-            child:
-                _selectedTab == 0 ? _buildOngoingList() : _buildCompletedList(),
+            child: _selectedTab == 0 ? _buildOngoingList() : _buildCompletedList(),
           ),
         ],
       ),
@@ -151,14 +150,24 @@ class _UserHomePageState extends State<UserHomePage> {
           if (index == 1) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => BookingPage()),
+              MaterialPageRoute(
+                builder: (context) => BookingPage(
+                  userController: widget.userController,
+                  username: widget.username,
+                ),
+              ),
             );
-          } else if (index == 0) {}
-          // else{
-          //   Navigator.pushReplacement(
-          //     context
-          //     , MaterialPageRoute(builder: (context) => UserProfilePage(fullName: fullName, phoneNumber: phoneNumber, email: email, address: address, role: role)));
-          // }
+          } else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserProfilePage(
+                  userController: widget.userController,
+                  username: widget.username,
+                ),
+              ),
+            );
+          }
         },
       ),
     );
@@ -183,22 +192,6 @@ class _UserHomePageState extends State<UserHomePage> {
             // Handle Delete action
           },
         ),
-        _buildBookingCard(
-          'TAMAN BERUAS LOT',
-          'RM200.00',
-          'PEKAN',
-          '13 DIS 2024',
-          'Edit',
-          'Delete',
-          Colors.green,
-          Colors.red,
-          () {
-            // Handle Edit action
-          },
-          () {
-            // Handle Delete action
-          },
-        ),
       ],
     );
   }
@@ -211,20 +204,6 @@ class _UserHomePageState extends State<UserHomePage> {
           'RM2300.00',
           'PEKAN',
           '16 NOV 2024',
-          'Completed',
-          'Rate',
-          Colors.green,
-          Colors.yellow,
-          null,
-          () {
-            // Handle Rate action
-          },
-        ),
-        _buildBookingCard(
-          'TAMAN BERUAS LOT',
-          'RM200.00',
-          'PEKAN',
-          '13 DIS 2024',
           'Completed',
           'Rate',
           Colors.green,
@@ -259,11 +238,7 @@ class _UserHomePageState extends State<UserHomePage> {
           children: [
             Text(
               title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
             Row(
@@ -281,10 +256,7 @@ class _UserHomePageState extends State<UserHomePage> {
               children: [
                 Text(
                   price,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Row(
                   children: [
@@ -313,10 +285,3 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 }
-
-// void main() {
-//   runApp(MaterialApp(
-//     home: UserHomePage(),
-//     debugShowCheckedModeBanner: false,
-//   ));
-// }

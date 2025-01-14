@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/screens/ManageBooking/ActivityPage.dart';
+import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
 
 class HomePage extends StatefulWidget {
+  final Bookingcontroller bookingController;
+  final UserController userController;
+  final String username;
+
+  HomePage(this.bookingController, this.userController, this.username);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -24,7 +32,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Hi, Hazzeq',
+              'Hi, ${widget.username}',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
@@ -89,14 +97,26 @@ class _HomePageState extends State<HomePage> {
         ],
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => HomePage(
+            //     userController: widget.userController,
+            //       username: widget.username)),
+            // );
           } else if (index == 1) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }else{
+             Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserProfilePage(
+                  userController: widget.userController,
+                  username: widget.username,
+                ),
+              ),
             );
           }
         },
@@ -174,9 +194,9 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: HomePage(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+// void main() {
+//   runApp(MaterialApp(
+//     home: HomePage(),
+//     debugShowCheckedModeBanner: false,
+//   ));
+// }

@@ -1,145 +1,152 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/controllers/UserController.dart';
+import 'package:hcms_application/domains/User.dart';
 import 'package:hcms_application/screens/ManageBooking/BookingPage.dart';
 import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
+import 'package:hcms_application/screens/ReusableBottomNavBar.dart';
 import 'EditPage.dart';
 
-class UserProfilePage extends StatelessWidget {
-  final Bookingcontroller _bookingController = Bookingcontroller();
-  final String fullName;
-  final String phoneNumber;
-  final String email;
-  final String address;
-  final String role;
+class UserProfilePage extends StatefulWidget {
+  final UserController userController;
+  final String username;
 
-  UserProfilePage({
-    required this.fullName,
-    required this.phoneNumber,
-    required this.email,
-    required this.address,
-    required this.role,
-  });
+  UserProfilePage({required this.userController, required this.username, Key? key}) : super(key: key);
+
+  @override
+  _UserProfilePageState createState() => _UserProfilePageState();
+}
+
+class _UserProfilePageState extends State<UserProfilePage> {
+  late Future<User> _userFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _userFuture = _fetchUserDetails();
+  }
+
+  Future<User> _fetchUserDetails() async {
+    final user = await widget.userController.fetchUserByUsername(widget.username);
+    if (user != null) {
+      return user;
+    } else {
+      throw Exception('User not found');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('MY ACCOUNT'),
-        backgroundColor: role == 'House Owner' ? Colors.green : Colors.purple,
+        backgroundColor: Colors.green,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor:
-                        role == 'House Owner' ? Colors.green : Colors.purple,
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    fullName,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditPage(
-                            fullName: fullName,
-                            email: email,
-                            phoneNumber: phoneNumber,
-                            address: address,
-                            postalCode: "21050", // Placeholder value
-                            state: "Terengganu", // Placeholder value
-                            role: role,
-                          ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          role == 'House Owner' ? Colors.green : Colors.purple,
-                    ),
-                    child: Text('Edit', style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            buildDetailField('Full Name', fullName),
-            buildDetailField('Phone Number', phoneNumber),
-            buildDetailField('Email', email),
-            buildDetailField('Address', address),
-            SizedBox(height: 20),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: role == 'House Owner' ? Colors.green : Colors.purple,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                role,
-                style: TextStyle(
-                  color: role == 'House Owner' ? Colors.green : Colors.purple,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2, // Highlight the "Profile" tab
-        selectedItemColor: role == 'House Owner' ? Colors.green : Colors.purple,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Book Now',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => BookingPage()),
-            );
-          } else if (index == 0) {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => UserHomePage(_bookingController)));
-          } else {}
+      body: FutureBuilder<User>(
+        future: _userFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            final user = snapshot.data!;
+            return _buildUserProfile(context, user);
+          } else {
+            return Center(child: Text('No user data found.'));
+          }
         },
+      ),
+      bottomNavigationBar: ReusableBottomNavBar(
+        currentIndex: 2, // Highlight the "Profile" tab
+        userController: widget.userController,
+        bookingController: Bookingcontroller(),
+        username: widget.username, // Pass the correct username dynamically
       ),
     );
   }
 
-  Widget buildDetailField(String label, String value) {
+  Widget _buildUserProfile(BuildContext context, User user) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                  child: Icon(
+                    Icons.person,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  user.fullName,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditPage(
+                          username: widget.username, // Pass the username dynamically
+                          fullName: user.fullName,
+                          email: user.email,
+                          phoneNumber: user.phoneNum,
+                          address: user.address,
+                          postalCode: "12345", // Update dynamically if needed
+                          state: user.state,
+                          role: user.role,
+                          userController: widget.userController, // Pass the UserController
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                  ),
+                  child: Text('Edit', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
+          buildDetailField('Full Name', user.fullName, user.role),
+          buildDetailField('Phone Number', user.phoneNum, user.role),
+          buildDetailField('Email', user.email, user.role),
+          buildDetailField('Address', user.address, user.role),
+          SizedBox(height: 20),
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: user.role == 'House Owner' ? Colors.green : Colors.purple,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              user.role,
+              style: TextStyle(
+                color: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDetailField(String label, String value, String role) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(

@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/domains/Booking.dart';
+import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
 import 'UserHomePage.dart';
 
 class BookingPage extends StatefulWidget {
+  final UserController userController;
+  final String username;
+
+  const BookingPage({required this.userController, required this.username, Key? key}) : super(key: key);
+
   @override
   _BookingPageState createState() => _BookingPageState();
 }
@@ -13,17 +20,11 @@ class _BookingPageState extends State<BookingPage> {
   final TextEditingController _placeNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _specialInstructionsController =
-      TextEditingController();
+  final TextEditingController _specialInstructionsController = TextEditingController();
 
   String _preferredCleanerOption = 'Random'; // Default selection
   String? _selectedCleaner;
-  List<String> _registeredCleaners = [
-    'Andi',
-    'Maria',
-    'John',
-    'Nina'
-  ]; // Example cleaners
+  List<String> _registeredCleaners = ['Andi', 'Maria', 'John', 'Nina']; // Example cleaners
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,6 @@ class _BookingPageState extends State<BookingPage> {
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             SizedBox(height: 16),
-            // Place Name
             TextField(
               controller: _placeNameController,
               decoration: InputDecoration(
@@ -56,7 +56,6 @@ class _BookingPageState extends State<BookingPage> {
               ),
             ),
             SizedBox(height: 16),
-            // Address
             TextField(
               controller: _addressController,
               decoration: InputDecoration(
@@ -66,7 +65,6 @@ class _BookingPageState extends State<BookingPage> {
               maxLines: 3,
             ),
             SizedBox(height: 16),
-            // Scheduled Service Date
             TextField(
               controller: _dateController,
               decoration: InputDecoration(
@@ -82,20 +80,17 @@ class _BookingPageState extends State<BookingPage> {
                   lastDate: DateTime(2100),
                 );
                 if (pickedDate != null) {
-                  _dateController.text =
-                      '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+                  _dateController.text = '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
                 }
               },
             ),
             SizedBox(height: 16),
-            // Preferred Cleaner Section
             Text(
               'Preferred Cleaner *',
               style: TextStyle(fontSize: 16),
             ),
             Row(
               children: [
-                // Random Cleaner Checkbox
                 Expanded(
                   child: RadioListTile<String>(
                     title: Text('Random'),
@@ -109,7 +104,6 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
                 ),
-                // Custom Cleaner Checkbox
                 Expanded(
                   child: RadioListTile<String>(
                     title: Text('Custom'),
@@ -124,21 +118,7 @@ class _BookingPageState extends State<BookingPage> {
                 ),
               ],
             ),
-            if (_preferredCleanerOption == 'Random') ...[
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 8),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'We provide the best cleaner to help you! Sit back, relax, and let our trusted professionals take care of your needs.',
-                  style: TextStyle(color: Colors.green[800], fontSize: 14),
-                ),
-              ),
-            ],
-            if (_preferredCleanerOption == 'Custom') ...[
+            if (_preferredCleanerOption == 'Custom')
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   labelText: 'Select Cleaner',
@@ -159,9 +139,7 @@ class _BookingPageState extends State<BookingPage> {
                 isExpanded: true,
                 hint: Text('Choose a cleaner'),
               ),
-            ],
             SizedBox(height: 16),
-            // Special Instructions
             TextField(
               controller: _specialInstructionsController,
               decoration: InputDecoration(
@@ -171,7 +149,6 @@ class _BookingPageState extends State<BookingPage> {
               maxLines: 3,
             ),
             SizedBox(height: 24),
-            // Booking Button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
@@ -196,17 +173,21 @@ class _BookingPageState extends State<BookingPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => UserHomePage(_bookingController)),
+                      builder: (context) => UserHomePage(
+                        _bookingController,
+                        widget.userController,
+                        widget.username,
+                      ),
+                    ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Failed to book. Please try again.')),
+                    SnackBar(content: Text('Failed to book. Please try again.')),
                   );
                 }
               },
               child: Text(
-                'Booking Now',
+                'Book Now',
                 style: TextStyle(fontSize: 18),
               ),
             ),
@@ -214,10 +195,10 @@ class _BookingPageState extends State<BookingPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // Highlight the "Book Now" tab
+        currentIndex: 1,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -236,18 +217,26 @@ class _BookingPageState extends State<BookingPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => UserHomePage(_bookingController)),
+                builder: (context) => UserHomePage(
+                  _bookingController,
+                  widget.userController,
+                  widget.username,
+                ),
+              ),
             );
-          } else if (index == 1) {}
+          } else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserProfilePage(
+                  userController: widget.userController,
+                  username: widget.username,
+                ),
+              ),
+            );
+          }
         },
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: BookingPage(),
-    debugShowCheckedModeBanner: false,
-  ));
 }
