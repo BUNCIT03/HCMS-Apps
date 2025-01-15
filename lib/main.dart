@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './screens/HomePage.dart';
 import './screens/ManageRating/RateServicesPage.dart';
+import './screens/GenerateReport/GenerateReportPage.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -10,10 +12,11 @@ class MyApp extends StatelessWidget {
 //HomePage dan RateService
   @override
   Widget build(BuildContext context) {
+    
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.green,
         useMaterial3: true,
       ),
       initialRoute: '/',
@@ -34,7 +37,11 @@ class MyApp extends StatelessWidget {
               reviewComments: "Great service!",
               ratingDate: DateTime.now(),
             ),
+        '/GenerateReportPage': (context) => GenerateReportPage(    
+            ),
       },
+      debugShowCheckedModeBanner: false,
     );
   }
+  
 }
