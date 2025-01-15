@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
-import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
 import 'package:hcms_application/screens/ManageUser/RegisterPage.dart';
 import 'screens/login_view.dart';
 
@@ -51,7 +50,8 @@ class MyApp extends StatelessWidget {
 class SplashScreen extends StatelessWidget {
   final UserController userController;
 
-  const SplashScreen({required this.userController, Key? key}) : super(key: key);
+  const SplashScreen({required this.userController, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

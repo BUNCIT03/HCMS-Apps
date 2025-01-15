@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/domains/User.dart';
-import 'package:hcms_application/screens/ManageBooking/BookingPage.dart';
-import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
 import 'package:hcms_application/screens/ReusableBottomNavBar.dart';
 import 'EditPage.dart';
 
@@ -11,7 +9,9 @@ class UserProfilePage extends StatefulWidget {
   final UserController userController;
   final String username;
 
-  UserProfilePage({required this.userController, required this.username, Key? key}) : super(key: key);
+  UserProfilePage(
+      {required this.userController, required this.username, Key? key})
+      : super(key: key);
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -27,7 +27,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<User> _fetchUserDetails() async {
-    final user = await widget.userController.fetchUserByUsername(widget.username);
+    final user =
+        await widget.userController.fetchUserByUsername(widget.username);
     if (user != null) {
       return user;
     } else {
@@ -77,7 +78,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                  backgroundColor:
+                      user.role == 'House Owner' ? Colors.green : Colors.purple,
                   child: Icon(
                     Icons.person,
                     size: 40,
@@ -96,7 +98,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditPage(
-                          username: widget.username, // Pass the username dynamically
+                          username:
+                              widget.username, // Pass the username dynamically
                           fullName: user.fullName,
                           email: user.email,
                           phoneNumber: user.phoneNum,
@@ -104,13 +107,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           postalCode: "12345", // Update dynamically if needed
                           state: user.state,
                           role: user.role,
-                          userController: widget.userController, // Pass the UserController
+                          userController:
+                              widget.userController, // Pass the UserController
                         ),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                    backgroundColor: user.role == 'House Owner'
+                        ? Colors.green
+                        : Colors.purple,
                   ),
                   child: Text('Edit', style: TextStyle(color: Colors.white)),
                 ),
@@ -128,14 +134,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
-                color: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                color:
+                    user.role == 'House Owner' ? Colors.green : Colors.purple,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               user.role,
               style: TextStyle(
-                color: user.role == 'House Owner' ? Colors.green : Colors.purple,
+                color:
+                    user.role == 'House Owner' ? Colors.green : Colors.purple,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,

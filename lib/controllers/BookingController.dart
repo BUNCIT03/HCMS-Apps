@@ -27,4 +27,34 @@ class Bookingcontroller {
       return [];
     }
   }
+
+  Future<bool> updateBooking(
+    String bookingId, // Document ID in Firestore
+    String username,
+    String bookingType,
+    String placeName,
+    String address,
+    String scheduledDate,
+    String preferredCleanerOption,
+    String? selectedCleaner,
+    String specialInstructions,
+  ) async {
+    try {
+      // Find the booking document by ID and update its fields
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'username': username,
+        'bookingType': bookingType,
+        'placeName': placeName,
+        'address': address,
+        'scheduledDate': scheduledDate,
+        'preferredCleanerOption': preferredCleanerOption,
+        'selectedCleaner': selectedCleaner,
+        'specialInstructions': specialInstructions,
+      });
+      return true;
+    } catch (e) {
+      print('Error updating booking: $e');
+      return false;
+    }
+  }
 }
