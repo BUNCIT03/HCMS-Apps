@@ -1,95 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:hcms_application/controllers/BookingController.dart';
-import 'package:hcms_application/controllers/UserController.dart';
-import 'package:hcms_application/screens/ManageUser/RegisterPage.dart';
-import 'screens/login_view.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase with the web configuration
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyA9UnlFUCkvd_N2NGXTjvuMXl1Vr7ncWjo",
-      authDomain: "hcms-application.firebaseapp.com",
-      projectId: "hcms-application",
-      storageBucket: "hcms-application.appspot.com",
-      messagingSenderId: "1054378321490",
-      appId: "1:1054378321490:web:f6ea958486f633db2da18b",
-      measurementId: "G-SXJJ411NDE",
-    ),
-  );
-
-  runApp(MyApp());
+import './screens/HomePage.dart';
+import './screens/ManageRating/RateServicesPage.dart';
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final UserController userController = UserController();
-  final BookingController bookingController = BookingController();
-
-  MyApp({Key? key}) : super(key: key);
-
+  const MyApp({super.key});
+//HomePage dan RateService
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HCMS Apps',
+      title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      // home: SplashScreen(userController: userController),
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
-        '/login': (context) => LoginView(userController),
-        '/register': (context) => RegisterPage(userController),
-      },
-    );
-  }
-}
-
-class SplashScreen extends StatelessWidget {
-  final UserController userController;
-
-  const SplashScreen({required this.userController, Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: userController.isUserRegistered("test_username"), // Example logic
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
+        '/': (context) => HomePage(
+              ratingId: 1,
+              cleanerId: 101,
+              houseOwnerId: 201,
+              ratingScore: 4.5,
+              reviewComments: "Great service!",
+              ratingDate: DateTime.now(),
             ),
-          );
-        }
-
-        if (snapshot.hasData && snapshot.data == true) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginView(userController),
-              ),
-            );
-          });
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RegisterPage(userController),
-              ),
-            );
-          });
-        }
-        return Scaffold(
-          body: Center(
-            child: Text('Redirecting...'),
-          ),
-        );
+        '/rateServices': (context) => RateServicesPage(
+              ratingId: 1,
+              cleanerId: 101,
+              houseOwnerId: 201,
+              ratingScore: 4.5,
+              reviewComments: "Great service!",
+              ratingDate: DateTime.now(),
+            ),
       },
     );
   }
