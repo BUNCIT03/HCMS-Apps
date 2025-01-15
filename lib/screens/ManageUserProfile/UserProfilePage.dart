@@ -9,9 +9,11 @@ class UserProfilePage extends StatefulWidget {
   final UserController userController;
   final String username;
 
-  UserProfilePage(
-      {required this.userController, required this.username, Key? key})
-      : super(key: key);
+  UserProfilePage({
+    required this.userController,
+    required this.username,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -38,32 +40,50 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('MY ACCOUNT'),
-        backgroundColor: Colors.green,
-      ),
-      body: FutureBuilder<User>(
-        future: _userFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return _buildUserProfile(context, user);
-          } else {
-            return Center(child: Text('No user data found.'));
-          }
-        },
-      ),
-      bottomNavigationBar: ReusableBottomNavBar(
-        currentIndex: 2, // Highlight the "Profile" tab
-        userController: widget.userController,
-        bookingController: Bookingcontroller(),
-        username: widget.username, // Pass the correct username dynamically
-      ),
+    return FutureBuilder<User>(
+      future: _userFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('MY ACCOUNT'),
+              backgroundColor: Colors.green,
+            ),
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('MY ACCOUNT'),
+              backgroundColor: Colors.green,
+            ),
+            body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        } else if (snapshot.hasData) {
+          final user = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('MY ACCOUNT'),
+              backgroundColor: Colors.green,
+            ),
+            body: _buildUserProfile(context, user),
+            bottomNavigationBar: ReusableBottomNavBar(
+              currentIndex: 2, // Highlight the "Profile" tab
+              userController: widget.userController,
+              bookingController: BookingController(),
+              user: user, // Pass the User object
+            ),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('MY ACCOUNT'),
+              backgroundColor: Colors.green,
+            ),
+            body: Center(child: Text('No user data found.')),
+          );
+        }
+      },
     );
   }
 
@@ -98,8 +118,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditPage(
-                          username:
-                              widget.username, // Pass the username dynamically
+                          username: widget.username, // Pass the username dynamically
                           fullName: user.fullName,
                           email: user.email,
                           phoneNumber: user.phoneNum,
@@ -107,8 +126,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           postalCode: "12345", // Update dynamically if needed
                           state: user.state,
                           role: user.role,
-                          userController:
-                              widget.userController, // Pass the UserController
+                          userController: widget.userController, // Pass the UserController
                         ),
                       ),
                     );

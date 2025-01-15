@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
-import 'package:hcms_application/screens/ManageBooking/HomePage.dart';
+import 'package:hcms_application/domains/User.dart';
+import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
 import 'package:hcms_application/screens/ManageCleanerSchedule/CleanerHomePage.dart';
 
 class LoginView extends StatefulWidget {
@@ -17,7 +18,6 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   bool _isLoading = false;
 
   Future<void> _loginUser() async {
@@ -36,34 +36,36 @@ class _LoginViewState extends State<LoginView> {
       });
 
       if (success) {
-        final user = await widget.userController.fetchUserByUsername(username);
+        final User? user = await widget.userController.fetchUserByUsername(username);
         if (user != null) {
-          // Redirect based on the user's role
+          // Navigate based on user role
           if (user.role == 'Cleaner') {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => HomePage(
-                  Bookingcontroller(),
+                  BookingController(),
                   widget.userController,
-                  username,
+                  user.username,
                 ),
               ),
             );
-          } else {
+          } else if (user.role == 'House Owner') {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => UserHomePage(
-                  Bookingcontroller(),
+                  BookingController(),
                   widget.userController,
-                  username,
+                  user.username,
                 ),
               ),
             );
+          } else {
+            _showErrorDialog('Unknown user role. Please contact support.');
           }
         } else {
-          _showErrorDialog('User details not found.');
+          _showErrorDialog('User details not found. Please try again.');
         }
       } else {
         _showErrorDialog('Invalid username or password. Please try again.');
@@ -75,12 +77,12 @@ class _LoginViewState extends State<LoginView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Login Failed'),
+        title: const Text('Login Failed'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -90,7 +92,10 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: Colors.green,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -98,14 +103,14 @@ class _LoginViewState extends State<LoginView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Welcome Back!',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _usernameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Username',
                   border: OutlineInputBorder(),
                 ),
@@ -116,10 +121,10 @@ class _LoginViewState extends State<LoginView> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
@@ -131,21 +136,22 @@ class _LoginViewState extends State<LoginView> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _loginUser,
-                      child: Text('Login'),
+                      child: const Text('Login'),
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
+                        backgroundColor: Colors.green,
+                        minimumSize: const Size(double.infinity, 50),
                       ),
                     ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Center(
                 child: GestureDetector(
                   onTap: () => Navigator.pushNamed(context, '/register'),
-                  child: Text(
+                  child: const Text(
                     'Don\'t have an account? Register here',
                     style: TextStyle(color: Colors.blue, fontSize: 14),
                   ),

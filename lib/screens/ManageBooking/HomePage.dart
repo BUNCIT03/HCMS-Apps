@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
-import 'package:hcms_application/screens/ManageBooking/EditBookingPage.dart';
-import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
-import 'BookingPage.dart';
+import 'package:hcms_application/domains/Booking.dart';
+import 'package:hcms_application/domains/User.dart';
 
 class UserHomePage extends StatefulWidget {
-  final Bookingcontroller bookingController;
+  final BookingController bookingController;
   final UserController userController;
-  final String username;
+  final User user; // Pass User instead of just username
 
-  UserHomePage(this.bookingController, this.userController, this.username);
+  UserHomePage({
+    required this.bookingController,
+    required this.userController,
+    required this.user,
+  });
 
   @override
   _UserHomePageState createState() => _UserHomePageState();
@@ -18,6 +21,26 @@ class UserHomePage extends StatefulWidget {
 
 class _UserHomePageState extends State<UserHomePage> {
   int _selectedTab = 0; // 0: Ongoing, 1: Completed
+  List<Booking> _ongoingBookings = [];
+  List<Booking> _completedBookings = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookings();
+  }
+
+  Future<void> _fetchBookings() async {
+    final bookings =
+        await widget.bookingController.getBookingsByUsername(widget.user.username);
+
+    setState(() {
+      _ongoingBookings =
+          bookings.where((booking) => !booking.lateCancelation).toList();
+      _completedBookings =
+          bookings.where((booking) => booking.lateCancelation).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,65 +58,13 @@ class _UserHomePageState extends State<UserHomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Hi, ${widget.username}',
+              'Hi, ${widget.user.username}',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Your booking for Taman Beruas has been declined by cleaner.',
-                    style: TextStyle(fontSize: 14, color: Colors.black),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                SizedBox(width: 8),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  onPressed: () {
-                    // Navigate to EditBookingPage with example data
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditBookingPage(
-                          bookingController: widget.bookingController,
-                          userController: widget.userController,
-                          bookingId: '1',
-                          username: widget.username,
-                          bookingType: 'Basic Housekeeping',
-                          placeName: 'Taman Beruas',
-                          address: '123 Street, City',
-                          scheduledDate: '12/12/2024',
-                          preferredCleanerOption: 'Random',
-                          specialInstructions:
-                              'Please use eco-friendly products.',
-                          selectedCleaner: null,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Text('EDIT'),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 GestureDetector(
                   onTap: () => setState(() => _selectedTab = 0),
@@ -143,167 +114,32 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
           SizedBox(height: 16),
           Expanded(
-            child:
-                _selectedTab == 0 ? _buildOngoingList() : _buildCompletedList(),
+            child: _selectedTab == 0
+                ? _buildBookingList(_ongoingBookings)
+                : _buildBookingList(_completedBookings),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Book Now',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookingPage(
-                  userController: widget.userController,
-                  username: widget.username,
-                ),
-              ),
-            );
-          } else if (index == 2) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserProfilePage(
-                  userController: widget.userController,
-                  username: widget.username,
-                ),
-              ),
-            );
-          }
-        },
-      ),
     );
   }
 
-  Widget _buildOngoingList() {
-    // Example data
-    return ListView(
-      children: [
-        _buildBookingCard(
-          'Kampung Beruas',
-          'RM156.00',
-          'Pekan',
-          '12 Nov 2024',
-          'Edit',
-          'Delete',
-          Colors.green,
-          Colors.red,
-          () {
-            // Edit action
-          },
-          () {
-            // Delete action
-          },
-        ),
-      ],
-    );
-  }
+  Widget _buildBookingList(List<Booking> bookings) {
+    if (bookings.isEmpty) {
+      return Center(
+        child: Text('No bookings available'),
+      );
+    }
 
-  Widget _buildCompletedList() {
-    // Example data
-    return ListView(
-      children: [
-        _buildBookingCard(
-          'UMP Pekan',
-          'RM2300.00',
-          'Pekan',
-          '16 Nov 2024',
-          'Completed',
-          'Rate',
-          Colors.green,
-          Colors.yellow,
-          null,
-          () {
-            // Rate action
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBookingCard(
-    String title,
-    String price,
-    String location,
-    String date,
-    String leftButtonText,
-    String rightButtonText,
-    Color leftButtonColor,
-    Color rightButtonColor,
-    VoidCallback? leftButtonAction,
-    VoidCallback? rightButtonAction,
-  ) {
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.location_on, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
-                Text(location),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(date),
-            SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  price,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: leftButtonColor,
-                      ),
-                      onPressed: leftButtonAction,
-                      child: Text(leftButtonText),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: rightButtonColor,
-                      ),
-                      onPressed: rightButtonAction,
-                      child: Text(rightButtonText),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return ListView.builder(
+      itemCount: bookings.length,
+      itemBuilder: (context, index) {
+        final booking = bookings[index];
+        return ListTile(
+          title: Text(booking.bookingName),
+          subtitle: Text(booking.bookingAddress),
+          trailing: Text(booking.bookingDate.toIso8601String()),
+        );
+      },
     );
   }
 }

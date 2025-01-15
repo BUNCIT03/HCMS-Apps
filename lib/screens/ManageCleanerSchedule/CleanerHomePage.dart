@@ -5,7 +5,7 @@ import 'package:hcms_application/screens/ManageCleanerActivityUpdate/ActivityPag
 import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
 
 class HomePage extends StatefulWidget {
-  final Bookingcontroller bookingController;
+  final BookingController bookingController;
   final UserController userController;
   final String username;
 

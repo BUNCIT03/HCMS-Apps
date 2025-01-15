@@ -1,39 +1,67 @@
 class Booking {
-  final String placeName;
-  final String address;
-  final String scheduledDate;
-  final String preferredCleanerOption;
-  final String? selectedCleaner;
-  final String? specialInstructions;
+  final int bookingId;
+  final String bookingType;
+  final String bookingName;
+  final String bookingAddress;
+  final DateTime bookingDate;
+  final String bookingTime;
+  final int? bookingCleaner;
+  final String? bookingInstruction;
+  final bool lateCancelation;
+  final DateTime createdDate;
+  final int scheduleId;
+  final int userId;
+  final String username;
 
   Booking({
-    required this.placeName,
-    required this.address,
-    required this.scheduledDate,
-    required this.preferredCleanerOption,
-    this.selectedCleaner,
-    this.specialInstructions,
+    required this.bookingId,
+    required this.bookingType,
+    required this.bookingName,
+    required this.bookingAddress,
+    required this.bookingDate,
+    required this.bookingTime,
+    this.bookingCleaner,
+    this.bookingInstruction,
+    this.lateCancelation = false,
+    required this.createdDate,
+    required this.scheduleId,
+    required this.userId,
+    required this.username,
   });
+
   Map<String, dynamic> toMap() {
     return {
-      'placeName': placeName,
-      'address': address,
-      'scheduledDate': scheduledDate,
-      'preferredCleanerOption': preferredCleanerOption,
-      'selectedCleaner': selectedCleaner,
-      'specialInstructions': specialInstructions,
+      'bookingId': bookingId,
+      'bookingType': bookingType,
+      'bookingName': bookingName,
+      'bookingAddress': bookingAddress,
+      'bookingDate': bookingDate.toIso8601String(),
+      'bookingTime': bookingTime,
+      'bookingCleaner': bookingCleaner,
+      'bookingInstruction': bookingInstruction,
+      'lateCancelation': lateCancelation,
+      'createdDate': createdDate.toIso8601String(),
+      'scheduleId': scheduleId,
+      'userId': userId,
+      'username': username,
     };
   }
 
-  // Convert Firestore document to Booking object
   factory Booking.fromMap(Map<String, dynamic> map) {
     return Booking(
-      placeName: map['placeName'],
-      address: map['address'],
-      scheduledDate: map['scheduledDate'],
-      preferredCleanerOption: map['preferredCleanerOption'],
-      selectedCleaner: map['selectedCleaner'],
-      specialInstructions: map['specialInstructions'],
+      bookingId: map['bookingId'],
+      bookingType: map['bookingType'],
+      bookingName: map['bookingName'],
+      bookingAddress: map['bookingAddress'],
+      bookingDate: DateTime.parse(map['bookingDate']),
+      bookingTime: map['bookingTime'],
+      bookingCleaner: map['bookingCleaner'],
+      bookingInstruction: map['bookingInstruction'],
+      lateCancelation: map['lateCancelation'] ?? false,
+      createdDate: DateTime.parse(map['createdDate']),
+      scheduleId: map['scheduleId'],
+      userId: map['userId'],
+      username: map['username'],
     );
   }
 }

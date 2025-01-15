@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
-import 'package:hcms_application/controllers/UserController.dart';
-import 'HomePage.dart';
 
 class EditBookingPage extends StatefulWidget {
-  final Bookingcontroller bookingController;
-  final UserController userController;
-  final String bookingId; // Add bookingId to identify the booking
+  final BookingController bookingController;
+  final int bookingId;
   final String username;
-  final String bookingType; // Existing booking type
-  final String placeName; // Existing booking details
+  final String bookingType;
+  final String bookingName;
   final String address;
-  final String scheduledDate;
-  final String preferredCleanerOption;
-  final String? selectedCleaner;
+  final DateTime scheduledDate;
+  final String bookingTime;
+  final int duration; // New attribute for duration
   final String specialInstructions;
 
   const EditBookingPage({
     required this.bookingController,
-    required this.userController,
     required this.bookingId,
     required this.username,
     required this.bookingType,
-    required this.placeName,
+    required this.bookingName,
     required this.address,
     required this.scheduledDate,
-    required this.preferredCleanerOption,
-    this.selectedCleaner,
+    required this.bookingTime,
+    required this.duration,
     required this.specialInstructions,
     Key? key,
   }) : super(key: key);
@@ -36,38 +32,39 @@ class EditBookingPage extends StatefulWidget {
 }
 
 class _EditBookingPageState extends State<EditBookingPage> {
-  late TextEditingController _placeNameController;
+  late TextEditingController _nameController;
   late TextEditingController _addressController;
-  late TextEditingController _dateController;
-  late TextEditingController _specialInstructionsController;
-
-  String? _selectedBookingType; // Dropdown selection for booking type
-  String _preferredCleanerOption = 'Random'; // Default
-  String? _selectedCleaner;
-  List<String> _cleaningOptions = [
-    'Basic Housekeeping',
-    'Premium Ironing',
-    'Spring Cleaning',
-    'Move in/out Cleaning',
-  ]; // Booking types
-  List<String> _registeredCleaners = [
-    'Andi',
-    'Maria',
-    'John',
-    'Nina'
-  ]; // Example cleaners
+  late TextEditingController _instructionController;
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  String? _selectedBookingType;
+  int? _selectedDuration;
+  final List<String> _bookingTypes = ['Standard', 'Deep Clean'];
+  final List<int> _durations = List.generate(11, (index) => index + 2); // 2 to 12 hours
 
   @override
   void initState() {
     super.initState();
-    _placeNameController = TextEditingController(text: widget.placeName);
+    _nameController = TextEditingController(text: widget.bookingName);
     _addressController = TextEditingController(text: widget.address);
-    _dateController = TextEditingController(text: widget.scheduledDate);
-    _specialInstructionsController =
-        TextEditingController(text: widget.specialInstructions);
+    _instructionController = TextEditingController(text: widget.specialInstructions);
+    _selectedDate = widget.scheduledDate;
+    _selectedTime = _parseTime(widget.bookingTime);
     _selectedBookingType = widget.bookingType;
-    _preferredCleanerOption = widget.preferredCleanerOption;
-    _selectedCleaner = widget.selectedCleaner;
+    _selectedDuration = widget.duration;
+  }
+
+  TimeOfDay _parseTime(String time) {
+    final parts = time.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _addressController.dispose();
+    _instructionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -76,165 +73,117 @@ class _EditBookingPageState extends State<EditBookingPage> {
       appBar: AppBar(
         title: Text('Edit Booking'),
         backgroundColor: Colors.green,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back), // Back button
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserHomePage(
-                  widget.bookingController,
-                  widget.userController,
-                  widget.username,
-                ),
-              ),
-            );
-          },
-        ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Edit your booking details below:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                labelText: 'Booking Type *',
+                labelText: 'Booking Type',
                 border: OutlineInputBorder(),
               ),
-              value: _selectedBookingType,
-              items: _cleaningOptions.map((option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Text(option),
-                );
+              items: _bookingTypes.map((type) {
+                return DropdownMenuItem(value: type, child: Text(type));
               }).toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedBookingType = value;
                 });
               },
+              value: _selectedBookingType,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
-              controller: _placeNameController,
+              controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Place Name *',
+                labelText: 'Booking Name',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _addressController,
               decoration: InputDecoration(
-                labelText: 'Address *',
+                labelText: 'Address',
                 border: OutlineInputBorder(),
               ),
-              maxLines: 3,
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _dateController,
-              decoration: InputDecoration(
-                labelText: 'Scheduled Service Date *',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.calendar_today),
+            const SizedBox(height: 16),
+            ListTile(
+              title: Text(
+                _selectedDate == null
+                    ? 'Select Booking Date'
+                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
               ),
+              trailing: const Icon(Icons.calendar_today),
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
-                  initialDate: DateTime.now(),
+                  initialDate: _selectedDate ?? DateTime.now(),
                   firstDate: DateTime.now(),
                   lastDate: DateTime(2100),
                 );
-                if (pickedDate != null) {
-                  _dateController.text =
-                      '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
-                }
+                setState(() {
+                  _selectedDate = pickedDate;
+                });
               },
             ),
-            SizedBox(height: 16),
-            Text(
-              'Preferred Cleaner *',
-              style: TextStyle(fontSize: 16),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: Text('Random'),
-                    value: 'Random',
-                    groupValue: _preferredCleanerOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _preferredCleanerOption = value!;
-                        _selectedCleaner = null;
-                      });
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: Text('Custom'),
-                    value: 'Custom',
-                    groupValue: _preferredCleanerOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _preferredCleanerOption = value!;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            if (_preferredCleanerOption == 'Custom')
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Select Cleaner',
-                  border: OutlineInputBorder(),
-                ),
-                items: _registeredCleaners.map((cleaner) {
-                  return DropdownMenuItem<String>(
-                    value: cleaner,
-                    child: Text(cleaner),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCleaner = value;
-                  });
-                },
-                value: _selectedCleaner,
-                isExpanded: true,
-                hint: Text('Choose a cleaner'),
+            const SizedBox(height: 16),
+            ListTile(
+              title: Text(
+                _selectedTime == null
+                    ? 'Select Booking Time'
+                    : _selectedTime!.format(context),
               ),
-            SizedBox(height: 16),
+              trailing: const Icon(Icons.access_time),
+              onTap: () async {
+                TimeOfDay? pickedTime = await showTimePicker(
+                  context: context,
+                  initialTime: _selectedTime ?? TimeOfDay.now(),
+                );
+                setState(() {
+                  _selectedTime = pickedTime;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              decoration: InputDecoration(
+                labelText: 'Duration (Hours)',
+                border: OutlineInputBorder(),
+              ),
+              items: _durations.map((duration) {
+                return DropdownMenuItem(
+                  value: duration,
+                  child: Text('$duration hours'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedDuration = value;
+                });
+              },
+              value: _selectedDuration,
+            ),
+            const SizedBox(height: 16),
             TextField(
-              controller: _specialInstructionsController,
+              controller: _instructionController,
               decoration: InputDecoration(
                 labelText: 'Special Instructions',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
               ),
-              onPressed: () {
-                _showConfirmationDialog(context);
-              },
-              child: Text(
-                'Save Changes',
-                style: TextStyle(fontSize: 18),
-              ),
+              onPressed: _updateBooking,
+              child: const Text('Update Booking'),
             ),
           ],
         ),
@@ -242,64 +191,42 @@ class _EditBookingPageState extends State<EditBookingPage> {
     );
   }
 
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Changes'),
-          content: Text('Are you sure you want to save these changes?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              onPressed: () async {
-                Navigator.pop(context); // Close dialog
-                final success = await widget.bookingController.updateBooking(
-                  widget.bookingId, // Pass bookingId
-                  widget.username,
-                  _selectedBookingType!,
-                  _placeNameController.text,
-                  _addressController.text,
-                  _dateController.text,
-                  _preferredCleanerOption,
-                  _selectedCleaner,
-                  _specialInstructionsController.text,
-                );
+  void _updateBooking() async {
+    // Validate input fields
+    if (_selectedBookingType == null ||
+        _nameController.text.isEmpty ||
+        _addressController.text.isEmpty ||
+        _selectedDate == null ||
+        _selectedTime == null ||
+        _selectedDuration == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
 
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Booking details updated successfully!')),
-                  );
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UserHomePage(
-                        widget.bookingController,
-                        widget.userController,
-                        widget.username,
-                      ),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'Failed to update booking. Please try again.')),
-                  );
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
+    // Update booking details
+    final success = await widget.bookingController.updateBooking(
+      widget.bookingId,
+      widget.username,
+      _selectedBookingType!,
+      _nameController.text,
+      _addressController.text,
+      '${_selectedDate!.year}-${_selectedDate!.month}-${_selectedDate!.day}',
+      _selectedTime!.format(context),
+      null, // No cleaner selected
+      _instructionController.text,
     );
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Booking updated successfully!')),
+      );
+      Navigator.pop(context); // Navigate back after successful update
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update booking')),
+      );
+    }
   }
 }

@@ -26,7 +26,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final UserController userController = UserController();
-  final Bookingcontroller bookingController = Bookingcontroller();
+  final BookingController bookingController = BookingController();
 
   MyApp({Key? key}) : super(key: key);
 
