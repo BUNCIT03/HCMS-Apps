@@ -13,7 +13,7 @@ class EditPage extends StatefulWidget {
   final String role;
   final UserController userController; // Controller to handle operations
 
-  EditPage({
+  const EditPage({super.key, 
     required this.username,
     required this.fullName,
     required this.email,

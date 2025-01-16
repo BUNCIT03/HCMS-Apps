@@ -9,11 +9,11 @@ class UserProfilePage extends StatefulWidget {
   final UserController userController;
   final String username;
 
-  UserProfilePage({
+  const UserProfilePage({
     required this.userController,
     required this.username,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();

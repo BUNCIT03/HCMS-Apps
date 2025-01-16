@@ -12,6 +12,7 @@ class Booking {
   final int scheduleId;
   final int userId;
   final String username;
+  final double price; // add price
 
   Booking({
     required this.bookingId,
@@ -27,6 +28,7 @@ class Booking {
     required this.scheduleId,
     required this.userId,
     required this.username,
+    required this.price, // add price
   });
 
   Map<String, dynamic> toMap() {
@@ -44,6 +46,7 @@ class Booking {
       'scheduleId': scheduleId,
       'userId': userId,
       'username': username,
+      'price': price, // add price
     };
   }
 
@@ -62,6 +65,7 @@ class Booking {
       scheduleId: map['scheduleId'],
       userId: map['userId'],
       username: map['username'],
+      price: map['price'], // Parsing price
     );
   }
 }

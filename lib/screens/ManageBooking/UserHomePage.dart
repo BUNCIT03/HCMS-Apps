@@ -11,7 +11,7 @@ class UserHomePage extends StatefulWidget {
   final String username;
 
   const UserHomePage(
-      this.bookingController, this.userController, this.username);
+      this.bookingController, this.userController, this.username, {super.key});
 
   @override
   _UserHomePageState createState() => _UserHomePageState();

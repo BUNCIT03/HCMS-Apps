@@ -9,7 +9,7 @@ class UserHomePage extends StatefulWidget {
   final UserController userController;
   final User user; // Pass User instead of just username
 
-  UserHomePage({
+  const UserHomePage({super.key, 
     required this.bookingController,
     required this.userController,
     required this.user,

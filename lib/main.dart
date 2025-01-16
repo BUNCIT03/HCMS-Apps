@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
+import 'package:hcms_application/controllers/BookingController.dart';
+import 'package:hcms_application/controllers/PaymentController.dart';
+import 'package:hcms_application/screens/ManagePayment/CheckoutPage.dart';
+import 'package:hcms_application/screens/ManagePayment/PaymentPage.dart';
+import 'package:hcms_application/screens/ManagePayment/PaymentProcessPage.dart';
 import 'package:hcms_application/screens/ManageUser/RegisterPage.dart';
-import 'screens/login_view.dart';
+import 'package:hcms_application/domains/Booking.dart';
+import 'package:hcms_application/screens/login_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,8 +32,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   final UserController userController = UserController();
   final BookingController bookingController = BookingController();
+  final PaymentController paymentController = PaymentController();
 
-  MyApp({Key? key}) : super(key: key);
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +48,13 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginView(userController),
         '/register': (context) => RegisterPage(userController),
+        '/checkout': (context) => CheckoutPage(
+          paymentController: paymentController,
+          bookingController: bookingController,
+          booking: ModalRoute.of(context)?.settings.arguments as Booking,
+        ),
+        '/payment': (context) => PaymentPage(paymentController: paymentController),
+        '/payment-process': (context) => PaymentProcessPage(paymentController: paymentController,),
       },
     );
   }
@@ -50,8 +63,7 @@ class MyApp extends StatelessWidget {
 class SplashScreen extends StatelessWidget {
   final UserController userController;
 
-  const SplashScreen({required this.userController, Key? key})
-      : super(key: key);
+  const SplashScreen({required this.userController, super.key});
 
   @override
   Widget build(BuildContext context) {

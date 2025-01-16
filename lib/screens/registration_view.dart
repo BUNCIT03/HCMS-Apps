@@ -6,7 +6,7 @@ import 'package:hcms_application/domains/user_model.dart';
 class RegistrationView extends StatelessWidget {
   final AuthController controller;
 
-  RegistrationView(this.controller);
+  RegistrationView(this.controller, {super.key});
 
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();

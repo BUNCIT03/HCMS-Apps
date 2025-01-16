@@ -17,8 +17,8 @@ class ReusableBottomNavBar extends StatelessWidget {
     required this.userController,
     required this.bookingController,
     required this.user, // Use the User object
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

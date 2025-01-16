@@ -5,7 +5,7 @@ import 'package:hcms_application/domains/User.dart';
 class RegisterPage extends StatefulWidget {
   final UserController userController;
 
-  const RegisterPage(this.userController, {Key? key}) : super(key: key);
+  const RegisterPage(this.userController, {super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();

@@ -24,8 +24,8 @@ class EditBookingPage extends StatefulWidget {
     required this.bookingTime,
     required this.duration,
     required this.specialInstructions,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _EditBookingPageState createState() => _EditBookingPageState();

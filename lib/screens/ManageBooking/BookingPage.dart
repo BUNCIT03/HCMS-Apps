@@ -15,8 +15,8 @@ class BookingPage extends StatefulWidget {
     required this.username,
     required this.bookingController,
     required this.userController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _BookingPageState createState() => _BookingPageState();
@@ -29,26 +29,42 @@ class _BookingPageState extends State<BookingPage> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String? _selectedCleaner;
-  String _preferredCleanerOption = 'Random';
+  final String _preferredCleanerOption = 'Random';
   String? _selectedCleaningType;
 
-  List<String> _cleaningTypes = [
+  final List<String> _cleaningTypes = [
     'Basic Housekeeping',
     'Premium Ironing',
     'Spring Cleaning',
     'Move In/Out Cleaning',
   ];
 
-  List<String> _registeredCleaners = ['Cleaner A', 'Cleaner B', 'Cleaner C'];
+  // add price of cleaning types
+  final Map<String, double> _servicePrices = {
+    'Basic Housekeeping': 50.0,
+    'Premium Ironing': 70.0,
+    'Spring Cleaning': 100.0,
+    'Move In/Out Cleaning': 150.0,
+  };
+
+  final List<String> _registeredCleaners = [
+    'Cleaner A',
+    'Cleaner B',
+    'Cleaner C'
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedCleaningType == null ? 'Choose Cleaning Service' : 'Booking'),
+        title: Text(_selectedCleaningType == null
+            ? 'Choose Cleaning Service'
+            : 'Booking'),
         backgroundColor: Colors.green,
       ),
-      body: _selectedCleaningType == null ? _buildServiceSelectionPage() : _buildBookingForm(),
+      body: _selectedCleaningType == null
+          ? _buildServiceSelectionPage()
+          : _buildBookingForm(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1,
         selectedItemColor: Colors.green,
@@ -135,11 +151,45 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   Widget _buildBookingForm() {
+    // State price after user choose bookingType
+    final double? price = _selectedCleaningType != null
+        ? _servicePrices[_selectedCleaningType!]
+        : null;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Dropdown for cleaning type
+          DropdownButton<String>(
+            value: _selectedCleaningType,
+            hint: Text('Select Cleaning Type'),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedCleaningType = newValue;
+              });
+            },
+            // add price
+            items: _servicePrices.keys.map((String key) {
+              return DropdownMenuItem<String>(
+                value: key,
+                child: Text(key),
+              );
+            }).toList(),
+          ),
+
+          // Display the price only if price is selected
+          if (price != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                'Price: \$${price.toStringAsFixed(2)}',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+            ),
+
+          const SizedBox(height: 16),
           Text(
             'Booking Type: $_selectedCleaningType',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -231,11 +281,11 @@ class _BookingPageState extends State<BookingPage> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _createBooking,
-            child: Text('Book Now'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               minimumSize: Size(double.infinity, 50),
             ),
+            child: Text('Book Now'),
           ),
         ],
       ),
@@ -267,6 +317,7 @@ class _BookingPageState extends State<BookingPage> {
       scheduleId: 1,
       userId: widget.userId,
       username: widget.username,
+      price: _servicePrices[_selectedCleaningType!] ?? 0.0,
     );
 
     final success = await widget.bookingController.addBooking(booking);

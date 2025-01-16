@@ -8,7 +8,7 @@ import 'package:hcms_application/screens/ManageCleanerSchedule/CleanerHomePage.d
 class LoginView extends StatefulWidget {
   final UserController userController;
 
-  const LoginView(this.userController, {Key? key}) : super(key: key);
+  const LoginView(this.userController, {super.key});
 
   @override
   _LoginViewState createState() => _LoginViewState();
@@ -141,11 +141,11 @@ class _LoginViewState extends State<LoginView> {
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _loginUser,
-                      child: const Text('Login'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         minimumSize: const Size(double.infinity, 50),
                       ),
+                      child: const Text('Login'),
                     ),
               const SizedBox(height: 16),
               Center(

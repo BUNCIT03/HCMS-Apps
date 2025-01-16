@@ -27,7 +27,7 @@ class BookingController {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => Booking.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Booking.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print('Error fetching bookings: $e');
@@ -95,7 +95,7 @@ class BookingController {
     try {
       final querySnapshot = await _firestore.collection('bookings').get();
       return querySnapshot.docs
-          .map((doc) => Booking.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Booking.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print('Error fetching all bookings: $e');
@@ -112,7 +112,7 @@ class BookingController {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => Booking.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Booking.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print('Error fetching bookings by date: $e');

@@ -9,7 +9,7 @@ class HomePage extends StatefulWidget {
   final UserController userController;
   final String username;
 
-  HomePage(this.bookingController, this.userController, this.username);
+  const HomePage(this.bookingController, this.userController, this.username, {super.key});
   @override
   _HomePageState createState() => _HomePageState();
 }
