@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
-import 'package:hcms_application/screens/ManageUser/RegisterPage.dart';
+import 'package:hcms_application/screens/UserRegistration/RegisterPage.dart' as user_registration;
 import 'screens/login_view.dart';
 
 void main() async {
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginView(userController),
-        '/register': (context) => RegisterPage(userController),
+        '/register': (context) => user_registration.RegisterPage(userController),
       },
     );
   }
@@ -80,7 +80,7 @@ class SplashScreen extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => RegisterPage(userController),
+                builder: (context) => user_registration.RegisterPage(userController),
               ),
             );
           });

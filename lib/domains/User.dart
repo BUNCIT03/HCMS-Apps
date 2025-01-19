@@ -9,6 +9,8 @@ class User {
   String state = '';
   String role = '';
 
+  bool get isCleaner => role.toLowerCase() == 'cleaner';
+  
   User({
     required this.userId,
     required this.username,
@@ -19,7 +21,10 @@ class User {
     required this.address,
     required this.state,
     required this.role,
+    
   });
+
+  get id => null;
 
   bool isValidUsername() => username.isNotEmpty;
   bool isValidPassword() => password.length >= 6;

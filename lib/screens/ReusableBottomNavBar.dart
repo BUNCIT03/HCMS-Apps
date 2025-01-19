@@ -3,7 +3,7 @@ import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/domains/User.dart';
 import 'package:hcms_application/screens/ManageBooking/BookingPage.dart';
-import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
+import 'package:hcms_application/screens/ManageBooking/HomePage.dart';
 import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
 
 class ReusableBottomNavBar extends StatelessWidget {
@@ -51,7 +51,8 @@ class ReusableBottomNavBar extends StatelessWidget {
               builder: (context) => UserHomePage(
                 bookingController,
                 userController,
-                user.username, // Pass the username from User object
+                user.username,
+                user // Pass the username from User object
               ),
             ),
           );
@@ -64,7 +65,8 @@ class ReusableBottomNavBar extends StatelessWidget {
                 userId: user.userId, // Use the actual user ID from User object
                 username: user.username, // Pass username from User object
                 bookingController: bookingController,
-                userController: userController, // Pass the userController
+                userController: userController,
+                user: user, // Pass the userController
               ),
             ),
           );
@@ -75,6 +77,7 @@ class ReusableBottomNavBar extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => UserProfilePage(
                 userController: userController,
+                isCleaner: user.isCleaner,
                 username: user.username, // Pass the username
               ),
             ),

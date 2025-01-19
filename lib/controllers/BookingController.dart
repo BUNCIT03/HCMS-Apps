@@ -119,4 +119,20 @@ class BookingController {
       return [];
     }
   }
+  // Fetch bookings where the cleaner is preferred
+  Future<List<Booking>> getBookingsByCleaner(int cleanerId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('bookings')
+          .where('bookingCleaner', isEqualTo: cleanerId)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Booking.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error fetching bookings for cleaner: $e');
+      return [];
+    }
+  }
 }

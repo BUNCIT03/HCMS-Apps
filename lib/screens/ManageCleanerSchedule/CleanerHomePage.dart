@@ -1,87 +1,117 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
+import 'package:hcms_application/domains/Booking.dart';
 import 'package:hcms_application/screens/ManageCleanerActivityUpdate/ActivityPage.dart';
 import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
+import 'package:intl/intl.dart';
 
-class HomePage extends StatefulWidget {
+class CleanerHomePage extends StatefulWidget {
   final BookingController bookingController;
   final UserController userController;
   final String username;
+  final int cleanerId;
 
-  HomePage(this.bookingController, this.userController, this.username);
+  CleanerHomePage({
+    required this.bookingController,
+    required this.userController,
+    required this.username,
+    required this.cleanerId,
+  });
+
   @override
-  _HomePageState createState() => _HomePageState();
+  _CleanerHomePageState createState() => _CleanerHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _CleanerHomePageState extends State<CleanerHomePage> {
+  List<Booking> _availableBookings = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAvailableBookings();
+  }
+
+  Future<void> _fetchAvailableBookings() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final bookings =
+        await widget.bookingController.getBookingsByCleaner(widget.cleanerId);
+
+    setState(() {
+      _availableBookings = bookings;
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome to HCMS'),
+        title: const Text('Welcome to HCMS'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Hi, ${widget.username}',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
-          // Notifications Section
-          Container(
-            height: 100,
-            margin: EdgeInsets.symmetric(horizontal: 16),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                'No notifications yet.',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-          ),
-          SizedBox(height: 16),
-          // Available Booking Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Available Booking',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.purple,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildBookingCard(
-                    'KAMPUNG BERUAS', 'RM156.00', 'PEKAN', '12 NOV 2024'),
-                _buildBookingCard(
-                    'TAMAN BERUAS LOT', 'RM200.00', 'PEKAN', '13 DIS 2024'),
-                _buildBookingCard(
-                    'PANTAI LAGENDA', 'RM354.00', 'PEKAN', '13 DIS 2024'),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Hi, ${widget.username}',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Available Bookings',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _availableBookings.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'No bookings available.',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _availableBookings.length,
+                          itemBuilder: (context, index) {
+                            final booking = _availableBookings[index];
+                            return _buildBookingCard(
+                              booking.bookingName,
+                              booking.bookingAddress,
+                              DateFormat('dd MMM yyyy, hh:mm a')
+                                  .format(booking.bookingDate),
+                              booking.bookingType,
+                              'RM ${booking.bookingId % 500 + 100}.00',
+                              () => _acceptBooking(booking.bookingId),
+                              () => _declineBooking(booking.bookingId),
+                            );
+                          },
+                        ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        items: [
+        currentIndex: 0,
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -97,12 +127,7 @@ class _HomePageState extends State<HomePage> {
         ],
         onTap: (index) {
           if (index == 0) {
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => HomePage(
-            //     userController: widget.userController,
-            //       username: widget.username)),
-            // );
+            // Stay on CleanerHomePage
           } else if (index == 1) {
             Navigator.pushReplacement(
               context,
@@ -115,6 +140,7 @@ class _HomePageState extends State<HomePage> {
                 builder: (context) => UserProfilePage(
                   userController: widget.userController,
                   username: widget.username,
+                  isCleaner: true, // Pass role context
                 ),
               ),
             );
@@ -125,65 +151,65 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBookingCard(
-      String title, String price, String location, String date) {
+    String title,
+    String address,
+    String date,
+    String type,
+    String price,
+    VoidCallback onAccept,
+    VoidCallback onDecline,
+  ) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.location_on, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
-                Text(location),
-              ],
+            const SizedBox(height: 8),
+            Text(
+              'Type: $type',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
-            SizedBox(height: 8),
-            Text(date),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
+            Text(
+              address,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              date,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              price,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  price,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                ElevatedButton(
+                  onPressed: onAccept,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
                   ),
+                  child: const Text('ACCEPT',
+                      style: TextStyle(color: Colors.white)),
                 ),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                      ),
-                      onPressed: () {
-                        // Handle Accept action
-                      },
-                      child: Text('ACCEPT'),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      onPressed: () {
-                        // Handle Decline action
-                      },
-                      child: Text('DECLINE'),
-                    ),
-                  ],
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: onDecline,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('DECLINE',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -192,11 +218,12 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
 
-// void main() {
-//   runApp(MaterialApp(
-//     home: HomePage(),
-//     debugShowCheckedModeBanner: false,
-//   ));
-// }
+  Future<void> _acceptBooking(int bookingId) async {
+    // Logic to handle accepting a booking
+  }
+
+  Future<void> _declineBooking(int bookingId) async {
+    // Logic to handle declining a booking
+  }
+}

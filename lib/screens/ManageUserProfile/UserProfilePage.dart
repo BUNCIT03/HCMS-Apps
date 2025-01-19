@@ -8,10 +8,12 @@ import 'EditPage.dart';
 class UserProfilePage extends StatefulWidget {
   final UserController userController;
   final String username;
+  final bool isCleaner; // Add this parameter for role handling
 
-  UserProfilePage({
+  const UserProfilePage({
     required this.userController,
     required this.username,
+    required this.isCleaner, // Initialize isCleaner
     Key? key,
   }) : super(key: key);
 
@@ -29,8 +31,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<User> _fetchUserDetails() async {
-    final user =
-        await widget.userController.fetchUserByUsername(widget.username);
+    final user = await widget.userController.fetchUserByUsername(widget.username);
     if (user != null) {
       return user;
     } else {
@@ -46,15 +47,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('MY ACCOUNT'),
+              title: const Text('MY ACCOUNT'),
               backgroundColor: Colors.green,
             ),
-            body: Center(child: CircularProgressIndicator()),
+            body: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('MY ACCOUNT'),
+              title: const Text('MY ACCOUNT'),
               backgroundColor: Colors.green,
             ),
             body: Center(child: Text('Error: ${snapshot.error}')),
@@ -63,7 +64,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           final user = snapshot.data!;
           return Scaffold(
             appBar: AppBar(
-              title: Text('MY ACCOUNT'),
+              title: const Text('MY ACCOUNT'),
               backgroundColor: Colors.green,
             ),
             body: _buildUserProfile(context, user),
@@ -77,10 +78,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
         } else {
           return Scaffold(
             appBar: AppBar(
-              title: Text('MY ACCOUNT'),
+              title: const Text('MY ACCOUNT'),
               backgroundColor: Colors.green,
             ),
-            body: Center(child: Text('No user data found.')),
+            body: const Center(child: Text('No user data found.')),
           );
         }
       },
@@ -89,7 +90,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildUserProfile(BuildContext context, User user) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,19 +100,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 CircleAvatar(
                   radius: 40,
                   backgroundColor:
-                      user.role == 'House Owner' ? Colors.green : Colors.purple,
-                  child: Icon(
+                      widget.isCleaner ? Colors.purple : Colors.green,
+                  child: const Icon(
                     Icons.person,
                     size: 40,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   user.fullName,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -132,36 +133,34 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: user.role == 'House Owner'
-                        ? Colors.green
-                        : Colors.purple,
+                    backgroundColor: widget.isCleaner
+                        ? Colors.purple
+                        : Colors.green,
                   ),
-                  child: Text('Edit', style: TextStyle(color: Colors.white)),
+                  child: const Text('Edit', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           buildDetailField('Full Name', user.fullName, user.role),
           buildDetailField('Phone Number', user.phoneNum, user.role),
           buildDetailField('Email', user.email, user.role),
           buildDetailField('Address', user.address, user.role),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
-                color:
-                    user.role == 'House Owner' ? Colors.green : Colors.purple,
+                color: widget.isCleaner ? Colors.purple : Colors.green,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               user.role,
               style: TextStyle(
-                color:
-                    user.role == 'House Owner' ? Colors.green : Colors.purple,
+                color: widget.isCleaner ? Colors.purple : Colors.green,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
@@ -180,12 +179,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(8),

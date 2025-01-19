@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hcms_application/controllers/ScheduleController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/domains/User.dart';
-import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
+import 'package:hcms_application/screens/ManageBooking/HomePage.dart';
 import 'package:hcms_application/screens/ManageCleanerSchedule/CleanerHomePage.dart';
 
 class LoginView extends StatefulWidget {
@@ -42,11 +43,12 @@ class _LoginViewState extends State<LoginView> {
           if (user.role == 'Cleaner') {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(
-                  BookingController(),
-                  widget.userController,
-                  user.username,
+               MaterialPageRoute(
+                builder: (context) => CleanerHomePage(
+                  bookingController: BookingController(), // Create an instance of the ScheduleController
+                  userController: widget.userController,
+                  username: user.username,
+                  cleanerId: user.userId, // Pass the cleaner's userId
                 ),
               ),
             );
@@ -58,6 +60,7 @@ class _LoginViewState extends State<LoginView> {
                   BookingController(),
                   widget.userController,
                   user.username,
+                  user
                 ),
               ),
             );

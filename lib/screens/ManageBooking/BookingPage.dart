@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
-import 'package:hcms_application/screens/ManageBooking/UserHomePage.dart';
 import 'package:hcms_application/controllers/UserController.dart';
 import 'package:hcms_application/domains/Booking.dart';
+import 'package:hcms_application/domains/User.dart';
+import 'package:hcms_application/screens/ManageBooking/HomePage.dart';
+import 'package:hcms_application/screens/ManageUserProfile/UserProfilePage.dart';
+import 'package:hcms_application/screens/ReusableBottomNavBar.dart';
 
 class BookingPage extends StatefulWidget {
   final int userId;
   final String username;
   final BookingController bookingController;
   final UserController userController;
+  final User user;
 
   const BookingPage({
     required this.userId,
     required this.username,
     required this.bookingController,
     required this.userController,
+    required this.user,
     Key? key,
   }) : super(key: key);
 
@@ -28,18 +33,30 @@ class _BookingPageState extends State<BookingPage> {
   final TextEditingController _instructionController = TextEditingController();
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  String? _selectedCleaner;
-  String _preferredCleanerOption = 'Random';
+  int? _selectedCleaner; // Store cleaner userId
   String? _selectedCleaningType;
 
-  List<String> _cleaningTypes = [
-    'Basic Housekeeping',
-    'Premium Ironing',
-    'Spring Cleaning',
-    'Move In/Out Cleaning',
+  final List<Map<String, dynamic>> _cleaningTypes = [
+    {'name': 'Basic Housekeeping', 'icon': Icons.home, 'color': Colors.blue},
+    {'name': 'Premium Ironing', 'icon': Icons.iron, 'color': Colors.orange},
+    {'name': 'Spring Cleaning', 'icon': Icons.eco, 'color': Colors.green},
+    {'name': 'Move In/Out Cleaning', 'icon': Icons.move_to_inbox, 'color': Colors.purple},
   ];
 
-  List<String> _registeredCleaners = ['Cleaner A', 'Cleaner B', 'Cleaner C'];
+  List<User> _registeredCleaners = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCleaners();
+  }
+
+  Future<void> _fetchCleaners() async {
+    final users = await widget.userController.fetchAllUsers();
+    setState(() {
+      _registeredCleaners = users.where((user) => user.role == 'Cleaner').toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,49 +66,11 @@ class _BookingPageState extends State<BookingPage> {
         backgroundColor: Colors.green,
       ),
       body: _selectedCleaningType == null ? _buildServiceSelectionPage() : _buildBookingForm(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Book Now',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserHomePage(
-                  widget.bookingController,
-                  widget.userController,
-                  widget.username,
-                ),
-              ),
-            );
-          } else if (index == 2) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserHomePage(
-                  widget.bookingController,
-                  widget.userController,
-                  widget.username,
-                ),
-              ),
-            );
-          }
-        },
+      bottomNavigationBar: ReusableBottomNavBar(
+        currentIndex: 0, // Set the active tab index
+        userController: widget.userController,
+        bookingController: widget.bookingController,
+        user: widget.user, 
       ),
     );
   }
@@ -107,23 +86,23 @@ class _BookingPageState extends State<BookingPage> {
           return GestureDetector(
             onTap: () {
               setState(() {
-                _selectedCleaningType = type;
+                _selectedCleaningType = type['name'];
               });
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: type['color'],
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cleaning_services, size: 40, color: Colors.green),
+                  Icon(type['icon'], size: 40, color: Colors.white),
                   SizedBox(height: 8),
                   Text(
-                    type,
+                    type['name'],
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ],
               ),
@@ -200,15 +179,15 @@ class _BookingPageState extends State<BookingPage> {
             },
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
+          DropdownButtonFormField<int>(
             decoration: InputDecoration(
               labelText: 'Preferred Cleaner',
               border: OutlineInputBorder(),
             ),
             items: _registeredCleaners.map((cleaner) {
-              return DropdownMenuItem(
-                value: cleaner,
-                child: Text(cleaner),
+              return DropdownMenuItem<int>(
+                value: cleaner.userId,
+                child: Text(cleaner.fullName),
               );
             }).toList(),
             onChanged: (value) {
@@ -260,7 +239,7 @@ class _BookingPageState extends State<BookingPage> {
       bookingAddress: _addressController.text,
       bookingDate: _selectedDate!,
       bookingTime: _selectedTime!.format(context),
-      bookingCleaner: null,
+      bookingCleaner: _selectedCleaner,
       bookingInstruction: _instructionController.text,
       lateCancelation: false,
       createdDate: DateTime.now(),
@@ -282,6 +261,7 @@ class _BookingPageState extends State<BookingPage> {
             widget.bookingController,
             widget.userController,
             widget.username,
+            widget.user,
           ),
         ),
       );
