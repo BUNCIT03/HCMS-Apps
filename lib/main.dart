@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hcms_application/controllers/BookingController.dart';
 import 'package:hcms_application/controllers/UserController.dart';
-import 'package:hcms_application/screens/UserRegistration/RegisterPage.dart' as user_registration;
+import 'package:hcms_application/screens/ManageUser/RegisterPage.dart';
 import 'screens/login_view.dart';
 
 void main() async {
@@ -25,23 +25,21 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final UserController userController = UserController();
-  final BookingController bookingController = BookingController();
-
-  MyApp({Key? key}) : super(key: key);
-
+  const MyApp({super.key});
+//HomePage dan RateService
   @override
   Widget build(BuildContext context) {
+    
     return MaterialApp(
-      title: 'HCMS Apps',
+      title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.green,
+        useMaterial3: true,
       ),
-      // home: SplashScreen(userController: userController),
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
         '/login': (context) => LoginView(userController),
-        '/register': (context) => user_registration.RegisterPage(userController),
+        '/register': (context) => RegisterPage(userController),
       },
     );
   }
@@ -80,7 +78,7 @@ class SplashScreen extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => user_registration.RegisterPage(userController),
+                builder: (context) => RegisterPage(userController),
               ),
             );
           });
